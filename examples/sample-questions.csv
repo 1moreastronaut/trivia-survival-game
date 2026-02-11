@@ -1,1 +1,31 @@
-
+Question,A,B,C,Correct
+"What color is the sky on a clear day?",Red,Blue,Green,B
+"How many sides does a triangle have?",2,3,4,B
+"What is the capital of France?",London,Paris,Berlin,B
+"Which planet is known as the Red Planet?",Venus,Mars,Jupiter,B
+"What do bees make?",Milk,Honey,Butter,B
+"How many legs does a spider have?",6,8,10,B
+"What is 10 + 5?",13,15,17,B
+"Which animal is known as the King of the Jungle?",Tiger,Lion,Bear,B
+"What is the largest ocean on Earth?",Atlantic,Pacific,Indian,B
+"How many days are in a week?",5,7,10,B
+"What is the opposite of hot?",Warm,Cold,Cool,B
+"Which season comes after summer?",Spring,Fall,Winter,B
+"What do caterpillars turn into?",Birds,Butterflies,Bees,B
+"How many wheels does a bicycle have?",1,2,3,B
+"What is the color of grass?",Blue,Green,Yellow,B
+"Which fruit is yellow and curved?",Apple,Banana,Orange,B
+"What is the largest land animal?",Rhino,Elephant,Hippo,B
+"How many hours are in a day?",12,24,48,B
+"What do cows drink?",Milk,Water,Juice,B
+"Which bird cannot fly?",Eagle,Penguin,Sparrow,B
+"What is the freezing point of water in Celsius?",-10,0,10,B
+"How many players are on a soccer team?",9,11,13,B
+"What is the capital of Japan?",Beijing,Tokyo,Seoul,B
+"Which gas do plants absorb from the air?",Oxygen,Carbon Dioxide,Nitrogen,B
+"How many continents are there?",5,7,9,B
+"What is the smallest prime number?",1,2,3,B
+"Which programming language is known for its use in web development and has 'Script' in its name?",TypeScript,JavaScript,CoffeeScript,B
+"In what year did World War II end?",1944,1945,1946,B
+"What is the speed of light approximately?",200000 km/s,300000 km/s,400000 km/s,B
+"Who wrote 'Romeo and Juliet'?",Dickens,Shakespeare,Hemingway,B
