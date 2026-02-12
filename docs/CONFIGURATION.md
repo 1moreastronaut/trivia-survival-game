@@ -1,385 +1,752 @@
-# ⚙️ Configuration Guide
+# Configuration Guide - Trivia Survival v1.0
 
-This guide covers all the settings you can customize to make the Trivia Survival Game work exactly how you want.
+Complete guide to configuring and customizing Trivia Survival for your stream.
 
 ---
 
 ## Table of Contents
 
-1. [Global Variables Overview](#global-variables-overview)
-2. [Game Settings](#game-settings)
-3. [CSV Configuration](#csv-configuration)
-4. [Discord Webhooks (Optional)](#discord-webhooks-optional)
-5. [Error Logging](#error-logging)
-6. [Advanced Customization](#advanced-customization)
+- [Configuration Overview](#configuration-overview)
+- [Global Variables Reference](#global-variables-reference)
+- [Game Timing Settings](#game-timing-settings)
+- [Discord Integration](#discord-integration)
+- [CSV Question File](#csv-question-file)
+- [Advanced Customization](#advanced-customization)
+- [Best Practices](#best-practices)
 
 ---
 
-## Global Variables Overview
+## Configuration Overview
 
-All game settings are controlled through **Global Variables** in Streamer.bot.
+Trivia Survival stores all configuration in **Streamer.bot Global Variables**. You can configure via:
 
-To access them:
-1. Open Streamer.bot
-2. Go to **Settings** → **Variables**
-3. Find the variable you want to change
-4. Edit its value
-5. Click **OK**
+### Windows: Setup UI (Recommended)
 
-**Important:** Some variables are managed automatically by the game - don't change these manually during a game!
+Run `!trivia-setup` in chat to open the graphical configuration window.
 
----
+**Advantages:**
+- Visual interface for all settings
+- CSV validation with error details
+- Leaderboard viewer and backup tools
+- Automatic variable creation
 
-## Game Settings
+### Linux or Manual: Global Variables
 
-### Core Configuration
+Configure directly in: **Settings → Variables → Global**
 
-| Variable Name | Type | Default | Description | Safe to Edit? |
-|---------------|------|---------|-------------|---------------|
-| `TriviaCSVPath` | String | (required) | Full path to your questions CSV file | ✅ (when not running) |
-| `TriviaQuestionCount` | Number | `10` | Number of questions per game | ✅ (before initialize) |
-| `TriviaAnswerWindow` | Number | `15` | Seconds players have to answer each question | ✅ (before initialize) |
-| `TriviaQuestionDelay` | Number | `5` | Seconds between showing question and answer options | ✅ (before initialize) |
-
-#### Detailed Settings:
-
-##### `TriviaCSVPath`
-**What it does:** Points to your question bank file
-
-**Examples:**
-- Windows: `C:\\StreamerBot\\Trivia\\questions.csv`
-- Alternative: `C:/StreamerBot/Trivia/questions.csv`
-
-**Tips:**
-- Use full paths (not relative)
-- Must end in `.csv`
-- File must exist before running Initialize
+**Advantages:**
+- Works on any platform
+- Direct control over values
+- No UI dependencies
 
 ---
 
-##### `TriviaQuestionCount`
-**What it does:** How many questions are asked per game
+## Global Variables Reference
 
-**Range:** 1 - 999 (practical range: 5-20)
+All variables must be created in: **Settings → Variables → Global**
+
+**Important:** Check **"Persisted"** for each variable to save between sessions!
+
+### Core Settings
+
+| Variable Name | Type | Required | Default | Description |
+|--------------|------|----------|---------|-------------|
+| `TriviaDataFolder` | String | ✅ Yes | N/A | Folder path for CSV and leaderboard files |
+| `TriviaQuestionCount` | Number | ✅ Yes | `10` | Total questions per game (1-30) |
+| `TriviaQuestionDelay` | Number | ✅ Yes | `5` | Seconds before showing answer options (0-30) |
+| `TriviaQuestionDelayMs` | Number | ✅ Yes | `5000` | Same as above in milliseconds (delay × 1000) |
+| `TriviaAnswerWindow` | Number | ✅ Yes | `15` | Seconds players have to answer (5-60) |
+| `TriviaAnswerWindowMs` | Number | ✅ Yes | `15000` | Same as above in milliseconds (window × 1000) |
+
+### Discord Integration
+
+| Variable Name | Type | Required | Default | Description |
+|--------------|------|----------|---------|-------------|
+| `TriviaDiscordWebhook` | String | ⭐ Optional | Empty | Discord webhook URL for posting leaderboards |
+| `TriviaDiscordWinnersDisplay` | String | ✅ Yes | `Top 10` | How many winners to show: `Top 5`, `Top 10`, `Top 25`, `Top 50`, `All` |
+| `TriviaDiscordChampsDisplay` | String | ✅ Yes | `Top 10` | How many sole survivors to show: `Top 5`, `Top 10`, `Top 25`, `Top 50`, `All` |
+
+### Leaderboard Data
+
+| Variable Name | Type | Required | Default | Description |
+|--------------|------|----------|---------|-------------|
+| `TriviaSharedWins` | Dictionary | 🔄 Auto-created | `{}` | Tracks all winners (created automatically on first game) |
+| `TriviaChampionWins` | Dictionary | 🔄 Auto-created | `{}` | Tracks sole survivors (created automatically on first game) |
+
+**Note:** Leaderboard variables are created automatically - you don't need to add them manually.
+
+### Game State Variables
+
+**⚠️ DO NOT manually create these!** They are managed automatically by the system:
+
+- `TriviaGameState` - Current state (idle/pregame/live/ended)
+- `TriviaPlayers` - Dictionary of active players
+- `TriviaQuestions` - Loaded question list
+- `TriviaCurrentQuestion` - Current question index
+- And many others...
+
+---
+
+## Game Timing Settings
+
+Understanding how timing affects gameplay.
+
+### Question Delay
+
+**Variable:** `TriviaQuestionDelay` (seconds) and `TriviaQuestionDelayMs` (milliseconds)
+
+**What it controls:** Time between displaying the question and showing answer options.
+
+**Purpose:** Gives players time to read the question before answers appear.
 
 **Recommendations:**
-- **5-7 questions:** Quick games (~3-5 minutes)
-- **10 questions:** Standard games (~6-8 minutes) ⭐ Recommended
-- **15-20 questions:** Long games (~10-15 minutes)
 
-**Note:** Your CSV must have at least this many questions!
+| Pace | Delay | Use Case |
+|------|-------|----------|
+| **Fast** | 3 seconds | Short questions, experienced players |
+| **Balanced** | 5 seconds | Default, works for most streams |
+| **Relaxed** | 7-10 seconds | Complex questions, casual audience |
 
----
+**Example Flow with 5-second delay:**
 
-##### `TriviaAnswerWindow`
-**What it does:** How long (in seconds) players have to type their answer
+1. `00:00` - Question appears: "What is the capital of France?"
+2. `00:05` - Options appear: 🇦 London | 🇧 Paris | 🇨 Berlin
+3. Players can now answer
 
-**Range:** 5 - 60 seconds
+### Answer Window
 
-**Recommendations:**
-- **10 seconds:** Fast-paced, intense ⚡
-- **15 seconds:** Balanced ⭐ Recommended
-- **20-30 seconds:** Relaxed, accessible
+**Variable:** `TriviaAnswerWindow` (seconds) and `TriviaAnswerWindowMs` (milliseconds)
 
-**Consider:**
-- Longer windows = more inclusive for slower typers
-- Shorter windows = more exciting, higher stakes
+**What it controls:** Time players have to submit their answer after options appear.
 
----
-
-##### `TriviaQuestionDelay`
-**What it does:** Delay between question appearing and answer options appearing
-
-**Range:** 0 - 30 seconds
+**Purpose:** Creates urgency and keeps game moving.
 
 **Recommendations:**
-- **3-5 seconds:** Standard ⭐ Recommended
-- **0-2 seconds:** Fast-paced
-- **10+ seconds:** For read-aloud questions on stream
 
-**Why have a delay?**
-- Prevents instant guessing
-- Gives you time to read the question aloud
-- Creates dramatic tension
+| Pace | Window | Use Case |
+|------|--------|----------|
+| **Quick Fire** | 10 seconds | Easy questions, fast gameplay |
+| **Balanced** | 15 seconds | Default, good for most content |
+| **Casual** | 20-25 seconds | Harder questions, relaxed pace |
+| **Accessibility** | 30+ seconds | Maximum inclusivity |
+
+**Example Flow with 15-second window:**
+
+1. `00:00` - Options appear: 🇦 London | 🇧 Paris | 🇨 Berlin
+2. `00:01-00:15` - Players type A, B, or C
+3. `00:15` - Window closes, answers locked
+4. Correct answer revealed, wrong answers eliminated
+
+### Question Count
+
+**Variable:** `TriviaQuestionCount`
+
+**What it controls:** Total questions per game.
+
+**Range:** 1-30 questions
+
+**Recommendations:**
+
+| Count | Duration | Use Case |
+|-------|----------|----------|
+| **5** | ~2-3 minutes | Quick stream segment, fast elimination |
+| **10** | ~5-7 minutes | Default, balanced gameplay |
+| **15** | ~8-10 minutes | Extended game, more competitive |
+| **20+** | 12+ minutes | Marathon mode, ultimate challenge |
+
+**Calculation:**
+
+Total Time ≈ (Question Delay + Answer Window + 5s result) × Question Count
+
+Example: (5 + 15 + 5) × 10 = 250 seconds ≈ 4 minutes
+
+---
+## Discord Integration
+
+Configure Discord webhook posting for automatic leaderboard updates.
+
+### Setting Up Discord Webhook
+
+**Step 1: Create Webhook in Discord**
+
+1. Open your Discord server
+2. Go to **Server Settings** → **Integrations** → **Webhooks**
+3. Click **"New Webhook"** or **"Create Webhook"**
+4. Configure:
+   - **Name:** "Trivia Leaderboards" (or your choice)
+   - **Channel:** Select where to post (e.g., #trivia-results)
+   - **Avatar:** Optional custom image
+5. Click **"Copy Webhook URL"**
+
+**Step 2: Add to Trivia Survival**
+
+**Windows:**
+1. Run `!trivia-setup` in chat
+2. Go to **Discord** tab
+3. Paste webhook URL
+4. Choose display options
+5. Click **"SAVE SETTINGS"**
+
+**Linux:**
+1. Settings → Variables → Global
+2. Find or create `TriviaDiscordWebhook`
+3. Set value to your webhook URL
+4. Check **"Persisted"**
+
+**Step 3: Enable Auto-Posting**
+
+1. In Streamer.bot, go to **Actions** tab
+2. Find **"Trivia 08) End Game"**
+3. Double-click to edit
+4. Locate the **disabled** subaction: `Run Action: Trivia 09) Discord Leaderboards`
+5. Right-click → **Enable**
+6. Save
+
+### Discord Display Options
+
+**Variable:** `TriviaDiscordWinnersDisplay`
+
+Controls how many winners to show in Discord posts.
+
+**Options:**
+- `Top 5` - Shows top 5 winners only
+- `Top 10` - Shows top 10 winners (default)
+- `Top 25` - Shows top 25 winners
+- `Top 50` - Shows top 50 winners
+- `All` - Shows all winners (not recommended for large leaderboards)
+
+**Variable:** `TriviaDiscordChampsDisplay`
+
+Controls how many sole survivors to show in Discord posts.
+
+**Options:** Same as above (Top 5/10/25/50/All)
+
+### Example Discord Post
+
+📊 TRIVIA LEADERBOARDS
+
+🏅 Winners (Top 10):
+1. PlayerOne - 12 wins
+2. PlayerTwo - 8 wins
+3. PlayerThree - 7 wins
+4. PlayerFour - 5 wins
+5. PlayerFive - 4 wins
+6. PlayerSix - 3 wins
+7. PlayerSeven - 3 wins
+8. PlayerEight - 2 wins
+9. PlayerNine - 2 wins
+10. PlayerTen - 1 win
+
+👑 Sole Survivors (Top 10):
+1. PlayerOne - 5 times
+2. PlayerThree - 3 times
+3. PlayerFour - 2 times
+4. PlayerNine - 1 time
+
+### Manual Discord Posting
+
+To post leaderboards on-demand without running a game:
+
+**Option 1: Trigger Action Manually**
+- Actions tab → "Trivia 09) Discord Leaderboards"
+- Right-click → Test
+
+**Option 2: Create Custom Command**
+- Create new command: `!trivia-leaderboards`
+- Action: Run "Trivia 09) Discord Leaderboards"
+- Permission: Mod/Broadcaster
 
 ---
 
-### Auto-Managed Variables (Do Not Edit Manually)
+## CSV Question File
 
-These variables are controlled by the game - **don't change them manually**:
+Configure your question bank for the trivia game.
 
-| Variable Name | Type | Purpose |
-|---------------|------|---------|
-| `TriviaGameState` | String | Tracks current game phase (idle/pregame/starting/live/ended) |
-| `TriviaAcceptingAnswers` | Boolean | Controls when answers can be submitted |
-| `TriviaCurrentQuestion` | Number | Tracks which question you're on |
-| `TriviaPlayersJoined` | Number | Total players who joined |
-| `TriviaPlayersAlive` | Number | Players still in the game |
-| `TriviaPlayers` | Dictionary | Player data (answers, status, etc.) |
-| `TriviaQuestions` | List | Loaded questions from CSV |
+### File Location
 
----
+**Variable:** `TriviaDataFolder`
 
-## CSV Configuration
+The CSV file must be named **`questions.csv`** and placed in your data folder.
 
-### File Format
+**Example paths:**
+- Windows: `C:\Trivia\questions.csv`
+- Linux: `/home/username/trivia/questions.csv`
 
-Your CSV must follow this **exact** structure:
+### CSV Format
 
-```csv
+**Required structure:**
+
 Question,A,B,C,Correct
-"What is the capital of France?",London,Paris,Berlin,B
-"What is 2+2?",3,4,5,B
-"Which planet is closest to the Sun?",Venus,Mercury,Mars,B
-```
 
-### CSV Rules
+**Rules:**
 
-✅ **Required:**
-- Header row: `Question,A,B,C,Correct`
-- At least as many questions as `TriviaQuestionCount`
-- `Correct` column must be `A`, `B`, or `C` (uppercase)
+✅ **First row must be header:** Exactly `Question,A,B,C,Correct`
+✅ **5 columns per row:** Question + 3 answers + correct letter
+✅ **Quote text with commas:** Wrap in double quotes
+✅ **Correct answer:** Must be `A`, `B`, or `C` (case-insensitive)
+✅ **Minimum questions:** At least as many as `TriviaQuestionCount` setting
 
-❌ **Common Mistakes:**
-- Missing header row
-- Wrong header names
-- Lowercase correct answers (a, b, c)
-- Fewer questions than configured
-- Missing columns
+### Example CSV File
 
-### Formatting Tips
-
-**Use quotes for text with commas or special characters:**
-```csv
 Question,A,B,C,Correct
-"Which actor said ""I'll be back""?",Stallone,Schwarzenegger,Willis,B
-```
+"What is 2+2?",Two,Four,Six,B
+"What color is the sky?",Red,Blue,Green,B
+"How many legs does a spider have?",Six,Eight,Ten,B
+"What is the capital of France?",Berlin,London,Paris,C
+"What is the largest ocean?",Atlantic,Pacific,Indian,B
+"How many continents are there?",Five,Seven,Nine,B
+"What is H2O?",Oxygen,Water,Hydrogen,B
+"Who painted the Mona Lisa?",Michelangelo,Da Vinci,Picasso,B
+"What is the fastest land animal?",Lion,Cheetah,Leopard,B
+"How many planets are in our solar system?",Seven,Eight,Nine,B
 
-**Keep questions concise for chat:**
-- ✅ Good: "What color is grass?"
-- ❌ Too long: "In the natural world, when considering the typical pigmentation of the most common variety of lawn grass species found in temperate climates, what color would you generally observe?"
+### Common CSV Mistakes
 
-**Balance difficulty:**
-- Mix easy, medium, and hard questions
-- Consider your audience's knowledge areas
-- Test questions before using them live
+❌ **Missing header:**
 
----
+"What is 2+2?",Two,Four,Six,B
 
-## Discord Webhooks (Optional)
+✅ **Correct:**
 
-Post game results and leaderboards to Discord automatically!
-
-### Setup
-
-#### Step 1: Create a Discord Webhook
-
-1. Go to your Discord server
-2. Select a channel → Click the gear icon ⚙️ (Edit Channel)
-3. Go to **Integrations** → **Webhooks**
-4. Click **New Webhook**
-5. Name it (e.g., "Trivia Bot")
-6. **Copy Webhook URL**
-
-#### Step 2: Configure in Streamer.bot
-
-Create these Global Variables:
-
-| Variable Name | Type | Value |
-|---------------|------|-------|
-| `TriviaDiscordWebhook` | String | Your webhook URL |
-| `TriviaEnableDiscord` | Boolean | `true` |
-
-#### Step 3: Test It
-
-Run a full game - results should appear in your Discord channel!
-
-### What Gets Posted?
-
-When enabled, the following are sent to Discord:
-
-1. **Game Start** - "Game starting with X players!"
-2. **Game Results** - Winners/Sole Survivor announcement
-3. **Leaderboards** - Top 5 Winners and Sole Survivors
-
-### Customizing Messages
-
-Messages are sent from the C# code in the `Trivia - Intermission` action. To customize:
-
-1. Open the action in Streamer.bot
-2. Find the C# subaction
-3. Look for the Discord webhook sections
-4. Edit the message strings
+Question,A,B,C,Correct
+"What is 2+2?",Two,Four,Six,B
 
 ---
 
-## Error Logging
+❌ **Using numbers for correct answer:**
 
-The game includes built-in error logging for CSV validation and game issues.
+"What is 2+2?",Two,Four,Six,2
 
-### Log Location
+✅ **Correct:**
 
-Errors are logged to Streamer.bot's **Log** tab.
+"What is 2+2?",Two,Four,Six,B
 
-### What Gets Logged?
+---
 
-- **CSV Errors:**
-  - File not found
-  - Invalid format
-  - Missing columns
-  - Invalid correct answers
-  - Line-by-line errors with row numbers
+❌ **Unquoted commas:**
 
-- **Game Errors:**
-  - Players trying to join when game is running
-  - Invalid game states
-  - Answer processing issues
+What is the capital of Paris, France?,Berlin,London,Paris,C
 
-### Viewing Logs
+✅ **Correct:**
 
-1. In Streamer.bot, go to the **Log** tab
-2. Look for entries prefixed with `[Trivia]`
-3. Errors show with details about what went wrong
+"What is the capital of Paris, France?",Berlin,London,Paris,C
 
-### Example Log Output
+---
 
-```
-[Trivia] Initializing game...
-[Trivia] CSV loaded successfully: 50 questions found
-[Trivia] Game ready - pregame state activated
-```
+❌ **Wrong number of columns:**
 
-Or if there's an error:
-```
-[Trivia] ERROR: CSV file not found at C:\questions.csv
-[Trivia] ERROR: Row 15 - Invalid correct answer 'D' (must be A, B, or C)
-```
+"What is 2+2?",Four,B
+
+✅ **Correct:**
+
+"What is 2+2?",Two,Four,Six,B
+
+### Validating Your CSV
+
+**Windows:**
+1. Run `!trivia-setup`
+2. Go to **Basic Setup** tab
+3. Click **"Validate CSV"**
+4. Green = Success, Red = Error details
+
+**Linux:**
+1. Run `!trivia-init` in chat
+2. Check Streamer.bot logs for errors
+3. Look for: `[Trivia] Loaded X questions from CSV`
+
+### Updating Questions
+
+You can update your CSV file anytime:
+
+1. Edit `questions.csv` in your data folder
+2. Save the file
+3. Run `!trivia-init` to reload
+
+**No need to restart Streamer.bot!** Questions load fresh each initialization.
 
 ---
 
 ## Advanced Customization
 
-### Custom Chat Messages
+### Multiple Question Sets
 
-All chat messages are sent via Streamer.bot's "Send Message to Channel" subactions. To customize:
+Create different CSV files for themed games:
 
-1. Open any trivia action (e.g., `Trivia - Initialize`)
-2. Find the "Send Message to Channel" subactions
-3. Edit the message text
-4. Save the action
+C:\Trivia\questions-movies.csv
+C:\Trivia\questions-gaming.csv
+C:\Trivia\questions-science.csv
+C:\Trivia\questions-stream-lore.csv
 
-**Tip:** Use Twitch emotes for personality! 
-- Example: `"Game starting! PogChamp Get ready!"`
+**To switch question sets:**
 
-### Leaderboard Storage
+**Windows:**
+1. Run `!trivia-setup`
+2. Temporarily change data folder to themed folder
+3. Or rename desired CSV to `questions.csv`
 
-Leaderboards are stored using Streamer.bot's **User Variables**:
+**Linux:**
+- Rename desired file: `mv questions-movies.csv questions.csv`
+- Or update `TriviaDataFolder` variable to different folder
 
-| User Variable | Description |
-|---------------|-------------|
-| `TriviaWins` | Total wins (including sole survivor) |
-| `TriviaSoleSurvivors` | Sole survivor wins only |
+### Custom Game Modes
 
-These persist across streams automatically!
+Create different timing profiles by adjusting variables:
 
-**To reset leaderboards:**
-1. Go to **Users** tab in Streamer.bot
-2. Right-click → **Manage User Variables**
-3. Delete `TriviaWins` and `TriviaSoleSurvivors` for users
+#### Speed Run Mode
 
-### Custom Point Rewards
-
-Instead of `!trivia` command, use Channel Points:
-
-1. Create a reward on Twitch (e.g., "Join Trivia" - 10 points)
-2. In Streamer.bot:
-   - **Platforms** → **Twitch** → **Channel Point Rewards**
-   - Right-click your reward → **Assign Action**
-   - Select `Trivia - Join`
-
-**Tip:** Make it free or very cheap so everyone can join!
-
-### Question Randomization
-
-**Q: Are questions random?**
-A: Currently, questions are asked in CSV order.
-
-**To randomize:**
-1. Open the `Trivia - Initialize` action
-2. In the C# subaction (CSV reading)
-3. Add code to shuffle the questions list after loading
-
-We can add this feature if there's interest!
-
----
-
-## Example Configurations
-
-### Quick Fire Mode (Fast Games)
-```
 TriviaQuestionCount: 5
-TriviaAnswerWindow: 10
 TriviaQuestionDelay: 3
-```
-Game length: ~3-4 minutes
+TriviaQuestionDelayMs: 3000
+TriviaAnswerWindow: 8
+TriviaAnswerWindowMs: 8000
 
----
+**Result:** Fast 2-minute game, high pressure
 
-### Standard Mode (Balanced)
-```
-TriviaQuestionCount: 10
-TriviaAnswerWindow: 15
-TriviaQuestionDelay: 5
-```
-Game length: ~6-8 minutes ⭐
+#### Marathon Mode
 
----
-
-### Marathon Mode (Long Games)
-```
 TriviaQuestionCount: 20
-TriviaAnswerWindow: 20
 TriviaQuestionDelay: 5
-```
-Game length: ~12-15 minutes
+TriviaQuestionDelayMs: 5000
+TriviaAnswerWindow: 20
+TriviaAnswerWindowMs: 20000
+
+**Result:** 8-minute epic challenge
+
+#### Accessibility Mode
+
+TriviaQuestionCount: 10
+TriviaQuestionDelay: 7
+TriviaQuestionDelayMs: 7000
+TriviaAnswerWindow: 30
+TriviaAnswerWindowMs: 30000
+
+**Result:** More time for reading and answering
+
+### Leaderboard Management
+
+#### Backup Leaderboards
+
+**Windows (via Setup UI):**
+1. Run `!trivia-setup`
+2. Go to **Leaderboards** tab
+3. Click **"Export Backup"**
+4. File saved to data folder: `winners_backup_YYYYMMDD_HHMMSS.json`
+
+**Linux (manual):**
+
+cd ~/trivia
+cp winners.json winners_backup_$(date +%Y%m%d_%H%M%S).json
+cp champions.json champions_backup_$(date +%Y%m%d_%H%M%S).json
+
+#### Restore Leaderboards
+
+**Windows (via Setup UI):**
+1. Run `!trivia-setup`
+2. Go to **Leaderboards** tab
+3. Click **"Import Backup"**
+4. Enter filename (e.g., `winners_backup_20260212_153045.json`)
+
+**Linux (manual):**
+
+cd ~/trivia
+cp winners_backup_20260212_153045.json winners.json
+cp champions_backup_20260212_153045.json champions.json
+
+#### Reset Leaderboards
+
+**Windows (via Setup UI):**
+1. Run `!trivia-setup`
+2. Go to **Leaderboards** tab
+3. Click **"Reset All Leaderboards"**
+4. Confirm when prompted
+
+**Linux (manual):**
+
+cd ~/trivia
+rm winners.json champions.json
+
+**Or** reset via Streamer.bot:
+- Settings → Variables → Global
+- Delete `TriviaSharedWins` and `TriviaChampionWins`
+
+---
+## Best Practices
+
+### Timing Recommendations by Stream Style
+
+#### High-Energy Stream
+- **Question Count:** 5-10
+- **Question Delay:** 3-5 seconds
+- **Answer Window:** 10-12 seconds
+- **Best for:** Fast-paced, hype content, short attention spans
+
+#### Balanced Stream
+- **Question Count:** 10
+- **Question Delay:** 5 seconds
+- **Answer Window:** 15 seconds
+- **Best for:** Most streams, default settings
+
+#### Chill/Casual Stream
+- **Question Count:** 8-12
+- **Question Delay:** 5-7 seconds
+- **Answer Window:** 20-25 seconds
+- **Best for:** Relaxed pace, chat interaction, inclusive gameplay
+
+#### Educational/Complex Content
+- **Question Count:** 10-15
+- **Question Delay:** 7-10 seconds
+- **Answer Window:** 25-30 seconds
+- **Best for:** Difficult questions, learning-focused content
+
+### Question Writing Tips
+
+✅ **Keep questions concise** - Aim for one sentence when possible
+
+✅ **Avoid ambiguity** - One clearly correct answer
+
+✅ **Balance difficulty** - Mix easy, medium, and hard questions
+
+✅ **Test for readability** - Can average viewer read it in 3-5 seconds?
+
+✅ **Vary topics** - Mix categories to keep it interesting
+
+✅ **Stream-specific questions** - Add inside jokes, lore, community references
+
+#### Example Question Difficulty Progression
+
+**Easy (Questions 1-3):**
+"What color is the sky?",Red,Blue,Green,B
+"How many legs does a dog have?",Two,Four,Six,B
+
+**Medium (Questions 4-7):**
+"What is the capital of France?",Berlin,London,Paris,C
+"Who painted the Mona Lisa?",Michelangelo,Da Vinci,Picasso,B
+
+**Hard (Questions 8-10):**
+"What year did World War II end?",1943,1945,1947,B
+"What is the smallest prime number?",One,Two,Three,B
+
+### Pre-Stream Checklist
+
+Before going live with trivia:
+
+- [ ] CSV file validated (no errors)
+- [ ] Timing tested (feels good for your audience)
+- [ ] At least 20+ questions in CSV (more variety)
+- [ ] Leaderboards backed up (if you have existing data)
+- [ ] Test game run completed (with mods or alt accounts)
+- [ ] Discord webhook tested (if using)
+- [ ] Commands verified (all working in chat)
+
+### During Stream Best Practices
+
+**Announcing the Game:**
+- Give 1-2 minute warning before starting
+- Explain rules clearly for new viewers
+- Mention how many questions (sets expectations)
+
+**Join Period:**
+- Allow 30-60 seconds for joins
+- Call out join count as it grows ("10 players so far!")
+- Remind viewers to type `!trivia`
+
+**During Questions:**
+- Read questions aloud for accessibility
+- Don't rush - let timers do their job
+- Build hype between questions
+- Celebrate survivors
+
+**After Game:**
+- Congratulate winners
+- Hype up sole survivors (if any)
+- Thank everyone who played
+- Announce next trivia time
+
+### Backup Strategy
+
+**Recommended schedule:**
+
+- **Before major updates:** Export backup
+- **Weekly (active streams):** Export backup
+- **Monthly (casual streams):** Export backup
+- **Before reset/testing:** Export backup
+
+**Naming convention:**
+
+winners_backup_YYYYMMDD_HHMMSS.json
+champions_backup_YYYYMMDD_HHMMSS.json
+
+**Example:**
+- `winners_backup_20260212_143022.json`
+- `champions_backup_20260212_143022.json`
+
+### Performance Optimization
+
+#### CSV File Size
+
+**Recommended:**
+- 20-50 questions: Optimal for variety without lag
+- 50-100 questions: Good for long-term use
+- 100+ questions: May cause slight delay on load
+
+**File size impact:**
+- Small (20 questions): <2KB, instant load
+- Medium (50 questions): <5KB, instant load
+- Large (200 questions): ~15KB, still fast
+- Very large (1000+ questions): May notice delay
+
+**Tip:** Keep CSV under 200 questions for best performance. Create multiple themed files instead of one massive file.
+
+#### Leaderboard Size
+
+**Considerations:**
+- 10-50 players: No impact
+- 50-200 players: Minimal impact
+- 200-500 players: Slight delay on leaderboard display
+- 500+ players: Consider periodic resets or archiving
+
+**Optimization:**
+- Archive old leaderboards seasonally
+- Reset for special events
+- Keep Discord display at Top 10 or Top 25
+
+### Seasonal/Event Configuration
+
+**New Season Setup:**
+
+1. **Backup current leaderboards**
+2. **Archive to dated folder:**
+   - `Season1_winners.json`
+   - `Season1_champions.json`
+3. **Reset leaderboards** for fresh start
+4. **Announce season theme** (if using themed questions)
+
+**Special Event Setup:**
+
+Create temporary configuration:
+- Separate data folder for event
+- Custom question set
+- Adjusted timing (faster/slower for variety)
+- Restore normal config after event
 
 ---
 
-### Accessible Mode (Inclusive)
-```
-TriviaQuestionCount: 8
-TriviaAnswerWindow: 25
-TriviaQuestionDelay: 10
-```
-More time for everyone to participate!
+## Troubleshooting Configuration Issues
+
+### Variables Not Saving
+
+**Symptom:** Settings reset after Streamer.bot restart
+
+**Solution:**
+- Ensure **"Persisted"** checkbox is checked on all variables
+- Settings → Variables → Global → Edit variable → Check "Persisted"
+
+### Millisecond Variables Don't Match
+
+**Symptom:** Warning about delay/window mismatch
+
+**Solution:**
+- `TriviaQuestionDelayMs` must equal `TriviaQuestionDelay × 1000`
+- `TriviaAnswerWindowMs` must equal `TriviaAnswerWindow × 1000`
+
+**Examples:**
+- Delay: 5 seconds → DelayMs: 5000
+- Window: 15 seconds → WindowMs: 15000
+
+### Discord Display Options Not Working
+
+**Symptom:** Discord shows wrong number of entries
+
+**Solution:**
+- Value must match exactly (case-sensitive):
+  - ✅ `Top 10`
+  - ❌ `top 10`
+  - ❌ `Top10`
+  - ❌ `10`
+- Valid options: `Top 5`, `Top 10`, `Top 25`, `Top 50`, `All`
+
+### Path Issues
+
+**Windows common mistakes:**
+- ❌ `C:\Trivia\` (trailing slash may cause issues)
+- ❌ `C:/Trivia/questions.csv` (including filename)
+- ✅ `C:\Trivia` (folder only, no trailing slash)
+
+**Linux common mistakes:**
+- ❌ `~/trivia` (shell expansion may not work)
+- ❌ `/home/username/trivia/` (trailing slash)
+- ✅ `/home/username/trivia` (absolute path, no trailing slash)
 
 ---
 
-## Tips for Success
+## Configuration Templates
 
-### Before Your First Stream
-1. **Test everything** with a few questions
-2. **Run a mock game** with mods/friends
-3. **Prepare backups** - have extra question CSVs ready
+### Quick Start Template (Copy & Modify)
 
-### Question Bank Tips
-1. **Start with 50+ questions** so you can run multiple games
-2. **Categorize questions** - make themed CSVs (e.g., movies.csv, gaming.csv)
-3. **Rotate question sets** to keep games fresh
+**Windows Example:**
 
-### Managing Games
-1. **Announce games in advance** - give viewers time to join
-2. **Set a join deadline** - "Join now! Starting in 2 minutes!"
-3. **Use !revive sparingly** - only for technical issues/unfairness
+TriviaDataFolder: C:\Trivia
+TriviaQuestionCount: 10
+TriviaQuestionDelay: 5
+TriviaQuestionDelayMs: 5000
+TriviaAnswerWindow: 15
+TriviaAnswerWindowMs: 15000
+TriviaDiscordWinnersDisplay: Top 10
+TriviaDiscordChampsDisplay: Top 10
+TriviaDiscordWebhook: (leave empty or add webhook URL)
+
+**Linux Example:**
+
+TriviaDataFolder: /home/username/trivia
+TriviaQuestionCount: 10
+TriviaQuestionDelay: 5
+TriviaQuestionDelayMs: 5000
+TriviaAnswerWindow: 15
+TriviaAnswerWindowMs: 15000
+TriviaDiscordWinnersDisplay: Top 10
+TriviaDiscordChampsDisplay: Top 10
+TriviaDiscordWebhook: (leave empty or add webhook URL)
 
 ---
 
-## Need Help?
+## Summary
 
-- 📖 Check the [Setup Guide](SETUP.md)
-- 💬 Open an [issue on GitHub](https://github.com/1moreastronaut/trivia-survival-game/issues)
-- 📺 Ask [@1moreastronaut](https://twitch.tv/1moreastronaut)
+**Essential Configuration Steps:**
+
+1. ✅ Set `TriviaDataFolder` to your data location
+2. ✅ Create `questions.csv` in that folder
+3. ✅ Configure timing (delay and window + milliseconds)
+4. ✅ Set question count
+5. ✅ Configure Discord display options
+6. ✅ (Optional) Add Discord webhook
+7. ✅ Validate CSV and test
+
+**Remember:**
+- Windows users: Use `!trivia-setup` for easy configuration
+- Linux users: Set global variables manually
+- Always check "Persisted" on variables
+- Test before going live
+- Backup leaderboards regularly
 
 ---
 
-**Next:** [Commands Reference →](COMMANDS.md)
+## Additional Resources
+
+- **[Setup Guide](SETUP.md)** - Installation and first-time setup
+- **[Commands Reference](COMMANDS.md)** - All available commands
+- **[Main README](../README.md)** - Feature overview and tips
+
+---
+
+## Getting Help
+
+Configuration questions? Check:
+
+1. **Streamer.bot Logs** - Bottom panel shows detailed errors
+2. **CSV Validation** - Use `!trivia-setup` → Validate CSV (Windows)
+3. **This guide** - Most configuration covered above
+4. **GitHub Issues** - Open an issue with details
+
+---
+
+**Configuration complete!** You're ready to customize Trivia Survival for your stream.
