@@ -36,6 +36,8 @@ Players compete by answering A/B/C questions. Wrong answers eliminate players. L
 - `questions-sample.csv` (example questions)
 - This README
 
+**⚠️ Note about sample questions:** The included `questions-sample.csv` is designed for **testing purposes only**. All 30 questions have "B" as the correct answer to make testing easier. For actual gameplay, create your own questions with randomized correct answers (A, B, or C) to prevent players from guessing patterns.
+
 ### **Step 2: Import into Streamer.bot**
 
 1. Open Streamer.bot
