@@ -1,445 +1,382 @@
-# 📖 Commands Reference
+## Troubleshooting Commands
 
-Complete guide to all commands available in the Trivia Survival Game.
+Common command issues and solutions.
 
----
+### !trivia Not Responding
 
-## Command Overview
+**Symptom:** Players type `!trivia` but nothing happens
 
-| Command | Who Can Use | When Available | Description |
-|---------|-------------|----------------|-------------|
-| `!trivia` | Everyone | Pre-game only | Join the game |
-| `!leave` | Players | Pre-game & Live | Leave the game voluntarily |
-| `!remove @username` | Mods/Broadcaster | Anytime during game | Remove a player from the game |
-| `!revive @username` | Mods/Broadcaster | Live game & Ended | Revive an eliminated player |
+**Possible Causes:**
 
----
+1. **Game not initialized**
+   - Solution: Mod must run `!trivia-init` first
 
-## Player Commands
+2. **Command disabled in Streamer.bot**
+   - Solution: Check Commands tab → Ensure `!trivia` is enabled
 
-### `!trivia` - Join the Game
+3. **Game already started**
+   - Solution: Wait for next game - late joins not allowed
 
-**Who can use:** Everyone
+4. **Typo in command**
+   - Solution: Type exactly `!trivia` (no spaces, correct spelling)
 
-**When to use:** During the pre-game joining phase only
+**Verification Steps:**
 
-**What it does:**
-- Adds you to the current game
-- You'll be announced in chat as a participant
-- You cannot join once the game has started
-
-**Examples:**
-```
-Viewer: !trivia
-Bot: @Viewer has joined the game! (5 players joined)
-```
-
-**Error cases:**
-```
-Viewer: !trivia
-Bot: @Viewer - You've already joined the game!
-```
-
-```
-Viewer: !trivia
-Bot: @Viewer - Sorry, the game has already started. No late joins allowed!
-```
-
-**Tips:**
-- Join early! Once the game starts, you can't join
-- You only need to type it once - multiple messages won't help
-- Watch chat for the game announcement
+1. Check Streamer.bot logs for errors
+2. Verify "Trivia 02) Join" action exists and is enabled
+3. Check game state (should be "pregame")
+4. Test with mod account
 
 ---
 
-### `!leave` - Leave the Game
+### !trivia-init Fails
 
-**Who can use:** Players who have joined
+**Symptom:** Command doesn't start join period
 
-**When to use:** 
-- During pre-game (before game starts)
-- During live game (while playing)
+**Possible Causes:**
 
-**What it does:**
-- Removes you from the game
-- Frees up your spot for others (pre-game)
-- Counts as elimination (during live game)
+1. **CSV file not found**
+   - Error: "CSV file not found at path..."
+   - Solution: Check `TriviaDataFolder` path is correct
 
-**Examples:**
-```
-Viewer: !leave
-Bot: @Viewer has left the game. (4 players remaining)
-```
+2. **CSV validation fails**
+   - Error: "Invalid CSV format at row X"
+   - Solution: Run `!trivia-setup` → Validate CSV for details (Windows)
+   - Solution: Check Streamer.bot logs for specific error (Linux)
 
-**Error cases:**
-```
-Viewer: !leave
-Bot: @Viewer - You're not in the current game.
-```
+3. **Game already active**
+   - Error: "A game is already in progress!"
+   - Solution: Use `!trivia-end` first, then retry
 
-**Tips:**
-- Use this if you need to step away
-- Leaving during a live game counts as elimination
-- You cannot rejoin the same game after leaving
+4. **Missing global variables**
+   - Error: "Configuration incomplete"
+   - Solution: Verify all required global variables exist
 
----
+**Debug Steps:**
 
-## Moderator Commands
+Check Streamer.bot logs for:
+- `[Trivia] Loaded X questions from CSV` (success)
+- `[Trivia] Error loading CSV: ...` (failure)
 
-These commands are restricted to **Moderators** and the **Broadcaster** only.
+Verify variables exist:
+- Settings → Variables → Global
+- Look for all `Trivia...` variables
 
-### `!remove @username` - Remove Player
-
-**Who can use:** Moderators, Broadcaster
-
-**When to use:** Anytime during an active game (pre-game or live)
-
-**What it does:**
-- Forcibly removes a player from the game
-- Useful for rule violations or trolling
-- Player is immediately eliminated
-
-**Syntax:**
-```
-!remove @username
-!remove username
-```
-
-**Examples:**
-```
-Moderator: !remove @TrollUser
-Bot: @TrollUser has been removed from the game by @Moderator
-```
-
-```
-Moderator: !remove @Viewer
-Bot: @Viewer has been removed from the game. (7 players remaining)
-```
-
-**Error cases:**
-```
-Moderator: !remove @NotInGame
-Bot: @NotInGame is not in the current game.
-```
-
-**Use cases:**
-- Player is being disruptive
-- Player is using multiple accounts
-- Player asks to be removed but can't type !leave
-
-**Tips:**
-- This is immediate and cannot be undone (use `!revive` to undo)
-- Player can still chat, just can't participate
-- Use sparingly to maintain fairness
+Test CSV file:
+- Windows: Open in Excel/Notepad
+- Linux: `cat ~/trivia/questions.csv`
 
 ---
 
-### `!revive @username` - Revive Eliminated Player
+### !trivia-start Shows "No Players"
 
-**Who can use:** Moderators, Broadcaster
+**Symptom:** Game won't start, says no players joined
 
-**When to use:**
-- During live game (to revive eliminated players)
-- After game ends (before next game starts)
+**Possible Causes:**
 
-**What it does:**
-- Brings an eliminated player back into the game
-- Resets their status to "alive"
-- Useful for fixing unfair eliminations or technical issues
+1. **Players actually didn't join**
+   - Solution: Have players use `!trivia` during join period
 
-**Syntax:**
-```
-!revive @username
-!revive username
-```
+2. **Join command failed silently**
+   - Solution: Check Streamer.bot logs for join errors
+   - Solution: Verify "Trivia 02) Join" action is working
 
-**Examples:**
-```
-Moderator: !revive @Viewer
-Bot: @Viewer has been revived by @Moderator! Welcome back to the game!
-```
+3. **Player dictionary corrupted**
+   - Solution: Run `!trivia-end` then `!trivia-init` to reset
 
-```
-Broadcaster: !revive @UnfairElimination
-Bot: @UnfairElimination is back in the game! (8 players alive)
-```
+**Verification:**
 
-**Error cases:**
-```
-Moderator: !revive @StillAlive
-Bot: @StillAlive is still in the game and doesn't need revival.
-```
-
-```
-Moderator: !revive @NeverJoined
-Bot: @NeverJoined was never in this game.
-```
-
-```
-Regular Viewer: !revive @Friend
-Bot: (No response - command ignored for non-mods)
-```
-
-**Use cases:**
-- Player answered correctly but was marked wrong (bug/glitch)
-- Chat lag caused a late answer submission
-- Accidental `!remove` by another mod
-- Technical issue prevented player from answering
-- Broadcaster discretion for fairness
-
-**Important Notes:**
-- ⚠️ **Use responsibly** - this can impact game fairness
-- Players will know someone was revived (announced in chat)
-- Cannot revive players who left voluntarily with `!leave`
-- Only works during game states: `live` and `ended`
-
-**Tips:**
-- Explain why you're reviving someone to maintain transparency
-- Consider game balance - reviving too many reduces stakes
-- Use for technical issues, not for "gimmes"
+Check global variables:
+- Settings → Variables → Global
+- Look for `TriviaPlayers` variable
+- Should show dictionary with player names
 
 ---
 
-## Broadcaster-Only Actions
+### !trivia-setup Window Doesn't Open
 
-These are manual action triggers in Streamer.bot (not chat commands):
+**Symptom:** Command in chat but no window appears
 
-### Initialize Game
+**Possible Causes:**
 
-**Action name:** `Trivia - Initialize`
+1. **Linux/Mac platform (Windows Forms not available)**
+   - Solution: Configure manually via global variables
 
-**How to trigger:**
-- Right-click the action → **Test**
-- Stream Deck button (if configured)
-- Custom hotkey (if configured)
+2. **Window opened off-screen**
+   - Solution: Check taskbar for window
+   - Solution: Alt+Tab to find window
 
-**What it does:**
-- Loads questions from CSV file
-- Sets game state to "pre-game"
-- Announces joining phase in chat
-- Validates CSV and logs any errors
+3. **Action disabled**
+   - Solution: Check "Trivia 00) Setup UI" is enabled
 
-**When to use:** Before each game, when you're ready for people to join
+4. **Missing .NET Framework**
+   - Solution: Install .NET Framework 4.7.2 or higher
 
-**Chat output:**
-```
-Bot: 🎮 Trivia Survival is starting! Type !trivia to join the game!
-```
+**Workaround:**
 
----
-
-### Start Game
-
-**Action name:** `Trivia - Start Game`
-
-**How to trigger:**
-- Right-click the action → **Test**
-- Stream Deck button (if configured)
-- Custom hotkey (if configured)
-
-**What it does:**
-- Locks in all joined players
-- Changes game state to "starting"
-- Begins asking questions automatically
-
-**When to use:** When you're ready to start (after enough players have joined)
-
-**Chat output:**
-```
-Bot: Game is starting with 12 players! No more joins allowed. Good luck!
-```
-
-**Automatic sequence:**
-1. Game starts
-2. First question appears (5 second timer starts)
-3. Answer options appear + answer window opens
-4. 15 seconds for players to answer
-5. Question ends, eliminations announced
-6. Repeat for all questions
-7. Winners announced
+Configure manually:
+- Settings → Variables → Global
+- Create/edit all `Trivia...` variables manually
+- See [Configuration Guide](CONFIGURATION.md) for values
 
 ---
 
-## Game Flow & Commands
+### !trivia-ask Doesn't Advance
 
-Here's how commands are used during a typical game:
+**Symptom:** Command used but next question doesn't appear
 
-### Phase 1: Pre-Game (Joining)
-```
-Broadcaster: (Triggers "Initialize" action)
-Bot: 🎮 Trivia Survival is starting! Type !trivia to join!
+**Possible Causes:**
 
-Viewer1: !trivia
-Bot: @Viewer1 has joined! (1 player)
+1. **Game not in live state**
+   - Solution: Can only use during active game
 
-Viewer2: !trivia
-Bot: @Viewer2 has joined! (2 players)
+2. **Game already ended**
+   - Solution: Start new game with `!trivia-init`
 
-Viewer3: !trivia
-Viewer3: !leave (oops, gotta go)
-Bot: @Viewer3 has left the game. (1 player remaining)
+3. **All questions completed**
+   - Solution: Game naturally ended - start new game
 
-Moderator: !remove @TrollAccount
-Bot: @TrollAccount has been removed from the game.
-```
+**Debug:**
 
-### Phase 2: Starting
-```
-Broadcaster: (Triggers "Start Game" action)
-Bot: Game starting with 10 players! No more joins!
-
-Viewer4: !trivia
-Bot: (No response - game already started)
-```
-
-### Phase 3: Live Game
-```
-Bot: Question 1: What is the capital of France?
-(5 seconds pass)
-Bot: Answer window open! A) London  B) Paris  C) Berlin
-
-Viewer1: B
-Viewer2: A
-Viewer3: C
-
-(15 seconds pass)
-Bot: Correct answer: B) Paris
-Bot: Eliminated: @Viewer2, @Viewer3 (8 players remain)
-
-Moderator: !revive @Viewer2
-Bot: @Viewer2 has been revived! (9 players alive)
-
-(Game continues...)
-```
-
-### Phase 4: End Game
-```
-Bot: 🏆 GAME OVER! 🏆
-Bot: Sole Survivor: @Viewer1 👑
-Bot: Congratulations! You answered all 10 questions correctly!
-
-Bot: 📊 LEADERBOARDS 📊
-Bot: Top Winners: @Viewer1 (5), @Viewer5 (3), @Viewer6 (2)...
-Bot: Top Sole Survivors: @Viewer1 (2), @OtherPlayer (1)...
-```
+Check current question count:
+- Settings → Variables → Global
+- Look for `TriviaCurrentQuestion`
+- Compare to `TriviaQuestionCount`
 
 ---
 
-## Command Permissions Setup
+### Game Stuck After !trivia-start
 
-To restrict commands to mods/broadcaster in Streamer.bot:
+**Symptom:** Game starts but first question never appears
 
-### For `!remove` and `!revive`:
+**Solution 1: Manual Advance**
 
-1. Go to **Commands** tab
-2. Find/create the command
-3. In command settings, under **Allowed:**
-   - ✅ Check **Broadcaster**
-   - ✅ Check **Moderators**
-   - ❌ Uncheck everything else (VIPs, Subscribers, Everyone)
-4. Click **OK**
+!trivia-ask
 
-### For `!trivia` and `!leave`:
+(Forces first question to appear)
 
-1. Under **Allowed:**
-   - ✅ Check **Everyone**
-   - (Also check Broadcaster, Mods, VIPs, Subs automatically)
+**Solution 2: Restart**
 
----
+!trivia-end
+!trivia-init
+(Players rejoin)
+!trivia-start
 
-## Advanced: Custom Messages
+**Solution 3: Check Logs**
 
-You can customize the bot's responses by editing the C# code in each action:
-
-1. Open the action in Streamer.bot
-2. Find the C# Execute Code subaction
-3. Look for lines like:
-   ```csharp
-   CPH.SendMessage($"{user} has joined the game!");
-   ```
-4. Change the message text
-5. Save the action
-
-**Example customization:**
-```csharp
-// Before:
-CPH.SendMessage($"{user} has joined the game!");
-
-// After (with emotes):
-CPH.SendMessage($"PogChamp {user} is ready to play! glhfGG");
-```
+Look for errors in Streamer.bot logs:
+- Action execution failures
+- Delay/timer errors
+- Chat message send failures
 
 ---
 
-## FAQ
+### Leaderboards Not Updating
 
-**Q: Can I change the join command from `!trivia` to something else?**
-A: Yes! Just edit the command in Streamer.bot's Commands tab and change the trigger.
+**Symptom:** Game completes but leaderboards stay the same
 
-**Q: Can players answer multiple times?**
-A: No - once you submit an answer (A, B, or C), it's locked in. No changes allowed.
+**Possible Causes:**
 
-**Q: What happens if I don't answer in time?**
-A: You're eliminated. Silence = wrong answer.
+1. **All players eliminated (no winners)**
+   - Expected: Leaderboards only update if someone survives
 
-**Q: Can I revive someone who used !leave?**
-A: Technically yes, but it's not recommended. The !leave command is voluntary.
+2. **Variables not persisted**
+   - Solution: Check `TriviaSharedWins` and `TriviaChampionWins` have "Persisted" checked
 
-**Q: How do leaderboards work?**
-A: Win counts are stored per-user automatically. Sole Survivor wins also count toward total wins.
+3. **File write permissions (Linux)**
+   - Solution: `chmod 755 ~/trivia`
 
-**Q: Can I reset leaderboards?**
-A: Yes - see the [Configuration Guide](CONFIGURATION.md) under "Leaderboard Storage"
+4. **Action failed silently**
+   - Solution: Check Streamer.bot logs during "Trivia 08) End Game"
+
+**Verification:**
+
+Check variables after game:
+- Settings → Variables → Global
+- `TriviaSharedWins` should show player names with counts
+- `TriviaChampionWins` should show sole survivors with counts
 
 ---
 
-## Troubleshooting
+### Discord Not Posting
 
-### Commands Not Working
+**Symptom:** Leaderboards don't appear in Discord
 
-**`!trivia` not responding:**
-- ✅ Check that game is initialized (pre-game state)
-- ✅ Verify command is enabled in Streamer.bot
-- ✅ Check that trigger is set up correctly
+**Checklist:**
 
-**`!remove` / `!revive` not working:**
-- ✅ Verify you're a mod or broadcaster
-- ✅ Check command permissions in Streamer.bot
-- ✅ Make sure you're @mentioning the username
+✅ **Webhook URL configured**
+- Settings → Variables → Global → `TriviaDiscordWebhook`
+- Should start with `https://discord.com/api/webhooks/`
 
-**Player says they answered but weren't counted:**
-- Chat lag might have delayed their message
-- They might have answered outside the window
-- Use `!revive` if it's unfair
+✅ **Subaction enabled**
+- Actions → "Trivia 08) End Game" → Edit
+- Find "Run Action: Trivia 09) Discord Leaderboards"
+- Must be **enabled** (not disabled)
+
+✅ **Webhook still valid**
+- Check Discord → Server Settings → Integrations → Webhooks
+- Verify webhook exists and is active
+
+✅ **Display options set**
+- `TriviaDiscordWinnersDisplay` = `Top 5`, `Top 10`, `Top 25`, `Top 50`, or `All`
+- `TriviaDiscordChampsDisplay` = same options
+- Case-sensitive, must match exactly
+
+**Test Manually:**
+
+Actions → "Trivia 09) Discord Leaderboards" → Test
+
+Check logs for:
+- `[Discord] Posted leaderboards successfully` (success)
+- `[Discord] Error: 403` (webhook invalid/deleted)
+- `[Discord] Error: 404` (webhook URL wrong)
+
+---
+
+## Command Permissions
+
+How to modify command permissions in Streamer.bot.
+
+### Default Permissions
+
+**!trivia:**
+- Everyone (all viewers can join)
+
+**!trivia-setup, !trivia-init, !trivia-start, !trivia-ask, !trivia-end:**
+- Moderators and Broadcaster only
+
+### Changing Permissions
+
+**To make !trivia mod-only (subscriber games, etc.):**
+
+1. Open Streamer.bot
+2. Go to **Commands** tab
+3. Find `!trivia` command
+4. Double-click to edit
+5. Change **Permissions** from "Everyone" to "Moderators"
+6. Save
+
+**To allow VIPs to control games:**
+
+1. Commands tab → Find mod commands
+2. Edit each command
+3. Add **VIP** to permissions
+4. Save
+
+**To create broadcaster-only commands:**
+
+1. Commands tab → Find command
+2. Edit
+3. Set permissions to "Broadcaster"
+4. Save
+
+---
+
+## Command Aliases
+
+Create alternate command names for convenience.
+
+### Example: Short Commands
+
+Create these additional commands with same actions:
+
+| Original | Alias | Action |
+|----------|-------|--------|
+| `!trivia-init` | `!tstart` | Trivia 01) Initialize |
+| `!trivia-start` | `!tgo` | Trivia 03) Start Game |
+| `!trivia-end` | `!tstop` | (Manual end logic) |
+
+**To create alias:**
+
+1. Commands tab → Add
+2. Command: `!tstart`
+3. Action: "Trivia 01) Initialize"
+4. Permissions: Moderators
+5. Save
 
 ---
 
 ## Quick Reference Card
 
-Print this for your mods:
+Print or save this for quick access during streams:
 
-```
-=== TRIVIA SURVIVAL COMMANDS ===
+**PRE-GAME:**
+- `!trivia-init` → Start join period
+- Wait 30-60 seconds
+- `!trivia-start` → Begin game
 
-PLAYERS:
-!trivia          - Join game (pre-game only)
-!leave           - Leave game
+**DURING GAME:**
+- Let it run automatically
+- `!trivia-ask` → Skip to next question (if stuck)
+- `!trivia-end` → Abort game
 
-MODS/BROADCASTER:
-!remove @user    - Remove player
-!revive @user    - Revive eliminated player
+**BETWEEN GAMES:**
+- `!trivia-init` → Start next game
 
-BROADCASTER ACTIONS (Streamer.bot):
-- Initialize     - Start joining phase
-- Start Game     - Begin questions
-```
+**MAINTENANCE:**
+- `!trivia-setup` → Configure settings (Windows)
+- Edit CSV → Update questions
+- `!trivia-init` → Reload questions
+
+**PLAYERS:**
+- `!trivia` → Join during join period
+- Type A, B, or C → Answer questions
 
 ---
 
-**Previous:** [← Configuration Guide](CONFIGURATION.md)
+## Command Cooldowns
 
-**Next:** Ready to create your questions? Check out the example CSV in `/examples/`!
+Preventing command spam.
+
+### Recommended Cooldowns
+
+**!trivia:**
+- User cooldown: 5 seconds (prevents rejoin spam)
+- Global cooldown: 0 seconds (allow simultaneous joins)
+
+**!trivia-init:**
+- User cooldown: 10 seconds
+- Global cooldown: 10 seconds (prevent double-initialization)
+
+**!trivia-start:**
+- User cooldown: 10 seconds
+- Global cooldown: 10 seconds (prevent double-start)
+
+**!trivia-ask:**
+- User cooldown: 3 seconds
+- Global cooldown: 3 seconds (prevent rapid skipping)
+
+**!trivia-end:**
+- User cooldown: 5 seconds
+- Global cooldown: 5 seconds
+
+**To set cooldowns:**
+
+1. Commands tab → Edit command
+2. Set "User Cooldown" and "Global Cooldown"
+3. Save
 
 ---
 
-**Need help?** Open an [issue on GitHub](https://github.com/1moreastronaut/trivia-survival-game/issues) or ask [@1moreastronaut](https://twitch.tv/1moreastronaut)!
+## Additional Resources
+
+- **[Setup Guide](SETUP.md)** - Installation and configuration
+- **[Configuration Guide](CONFIGURATION.md)** - Detailed settings reference
+- **[Main README](../README.md)** - Feature overview and tips
+
+---
+
+## Getting Help
+
+Command not working as expected?
+
+1. **Check Streamer.bot logs** - Bottom panel shows detailed errors
+2. **Verify command enabled** - Commands tab → Find command → Check enabled
+3. **Check permissions** - Ensure user has permission to run command
+4. **Review this guide** - Most issues covered above
+5. **Test with mod account** - Rule out permission issues
+6. **Open GitHub issue** - Include logs and steps to reproduce
+
+---
+
+**Commands mastered!** You're ready to run smooth trivia games on your stream. 🎮
