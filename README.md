@@ -521,6 +521,11 @@ You can update questions anytime:
 
 ## 📝 Version History
 
+### **v1.0.1 (2026-02-12)**
+- Performance optimization: Collect Answers action only runs during answer windows
+- Improved efficiency in busy channels
+- Better state management
+
 ### **v1.0 (2026-02-12)**
 - Initial release
 - 10 questions per game (configurable 1-30)
