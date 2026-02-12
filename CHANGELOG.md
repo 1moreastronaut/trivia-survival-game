@@ -6,6 +6,45 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
+## [1.0.1] - 2026-02-12
+
+### 🔧 Performance Improvements
+
+#### Fixed
+
+- **Collect Answers action optimization** - The "Trivia 06) Collect Answers" action now only enables during answer windows, significantly reducing overhead in busy channels
+  - Action enables when answer options appear
+  - Action disables after answer window closes
+  - Safety disables added to Initialize and End Game actions
+  - Prevents unnecessary message processing when game is idle/inactive
+  - Improves performance in high-traffic channels (100+ messages/minute)
+
+#### Technical Details
+
+**Actions Modified:**
+- `Trivia 01) Initialize` - Added disable subaction at start
+- `Trivia 05) Open Answers` - Added enable subaction when answer window opens
+- `Trivia 07) End Question` - Added disable subaction when answer window closes
+- `Trivia 08) End Game` - Added disable subaction at game end
+
+**Default State:**
+- `Trivia 06) Collect Answers` now ships in disabled state by default
+
+#### Benefits
+
+- ✅ Reduced CPU/memory usage in busy channels
+- ✅ No interference with other chat-based features
+- ✅ Cleaner state management
+- ✅ More explicit action lifecycle
+
+#### Migration from v1.0.0
+
+If updating from v1.0.0:
+1. Import the new `Trivia-Survival-v1.0.1.sb` file (overwrite existing actions)
+2. No configuration changes needed
+3. Test that answers are collected correctly during games
+
+---
 
 ## [1.0.0] - 2026-02-12
 
