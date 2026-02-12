@@ -1,344 +1,576 @@
-# 🎮 Trivia Survival Game for Streamer.bot
+# Trivia Survival - v1.0
 
-A **single-elimination trivia competition** that runs entirely in Twitch chat using [Streamer.bot](https://streamer.bot/).
+A fully-featured multiple-choice trivia game for Twitch streamers using Streamer.bot.
 
-Perfect for streamers who want to engage their community with interactive trivia games - **no OBS overlays required!**
+Players compete by answering A/B/C questions. Wrong answers eliminate players. Last one(s) standing win!
 
 ---
 
 ## ✨ Features
 
-- 🎯 **Single-elimination format** - Answer wrong, you're out!
-- ⏱️ **Timed questions** with configurable answer windows
-- 💬 **100% chat-based** - no visuals needed, pure Twitch chat gameplay
-- 🏆 **Leaderboard tracking** - Winners and Sole Survivors
-- 🔧 **Fully configurable** - adjust question count, timers, answer windows
-- 📝 **CSV question bank** - easy to create, edit, and customize
-- 🛡️ **Moderator controls** - remove players, revive eliminated contestants
-- 🪝 **Discord webhook support** (optional) - post results to Discord
-- 📊 **Error logging** - detailed CSV validation and game error tracking
-- ⚡ **Easy setup** - import actions and start playing in minutes
+- **Elimination-style gameplay** - Wrong answers = elimination
+- **Customizable questions** - Load from CSV file
+- **Dual leaderboards** - Track all winners + sole survivors
+- **Discord integration** - Auto-post leaderboards (optional)
+- **Configurable settings** - Question count, timing, display options
+- **Backup/restore** - Export and import leaderboard data
+- **Cross-platform** - Works on Windows and Linux
 
 ---
 
-## 🎲 How It Works
+## 🖥️ Platform Compatibility
 
-### Game Flow
+| Platform | Status | Notes |
+|----------|--------|-------|
+| **Windows** | ✅ Fully Supported | GUI setup available |
+| **Linux** | ✅ Supported | Manual configuration required (see below) |
 
-1. **🎬 Pre-Game (Joining Phase)**
-   - Streamer initializes the game
-   - Viewers join using `!trivia` command in chat
-   - Join window stays open until streamer starts the game
-
-2. **🚀 Game Start**
-   - Streamer triggers "Start Game"
-   - Player count locks in - no late joins allowed
-   - First question appears automatically
-
-3. **❓ Questions (10 by default)**
-   - Question appears in chat
-   - 5 seconds later: Answer options (A/B/C) appear and answer window opens
-   - Players have 15 seconds to type their answer (A, B, or C)
-   - No answer changes allowed - first answer is locked in
-   - Timer ends, correct answer revealed
-   - Wrong answers = elimination
-   - Eliminated players announced in chat
-
-4. **🏆 Results**
-   - **1 survivor** = **Sole Survivor** 👑 (special recognition!)
-   - **2+ survivors** = **Winners** 🎉
-   - Leaderboards updated and displayed in chat
-   - Optional: Results posted to Discord via webhook
-
-### Example Game in Chat
-
-```
-Bot: 🎮 Trivia Survival is starting! Type !trivia to join the game!
-
-Viewer1: !trivia
-Bot: @Viewer1 has joined! (1 player)
-
-Viewer2: !trivia
-Bot: @Viewer2 has joined! (2 players)
-
-[...more players join...]
-
-Bot: Game starting with 12 players! No more joins allowed. Good luck!
-
-Bot: Question 1: What is the capital of France?
-[5 seconds pass]
-Bot: Answer window open! A) London  B) Paris  C) Berlin
-
-Viewer1: B
-Viewer2: A
-Viewer3: B
-
-[15 seconds pass]
-Bot: Correct answer: B) Paris
-Bot: Eliminated: @Viewer2 (11 players remain)
-
-[...9 more questions...]
-
-Bot: 🏆 GAME OVER! 🏆
-Bot: Sole Survivor: @Viewer1 👑
-Bot: 📊 Top Winners: @Viewer1 (5 wins), @Viewer5 (3 wins)...
-```
+⚠️ **Linux Users:** The Setup UI uses Windows Forms and will not work on Linux. See the "Manual Setup for Linux" section below. Once configured, all game features work identically on both platforms.
 
 ---
 
-## 🚀 Quick Start
+## 📦 Installation (Windows & Linux)
 
-### Prerequisites
+### **Step 1: Download Files**
+- `Trivia-Survival-v1.0.sb` (main export file)
+- `questions-sample.csv` (example questions)
+- This README
 
-- ✅ [Streamer.bot](https://streamer.bot/) installed (v0.2.0 or later)
-- ✅ Streamer.bot connected to your Twitch account
-- ✅ Basic familiarity with Streamer.bot
+### **Step 2: Import into Streamer.bot**
 
-### Installation (5 minutes)
+1. Open Streamer.bot
+2. Click the **"Import"** button at the top of the window
+3. **Drag and drop** the `Trivia-Survival-v1.0.sb` file into the import window
+4. Confirm the import
 
-1. **Download** the latest release from [Releases](https://github.com/1moreastronaut/trivia-survival-game/releases)
-2. **Import** actions into Streamer.bot
-3. **Configure** your settings (CSV path, timers, etc.)
-4. **Create** or use the sample questions CSV
-5. **Test** and play!
+This will import:
+- ✅ 10 Trivia actions (00-09)
+- ✅ 6 Chat commands
+- ✅ No variables (clean slate for new setup)
 
-👉 **[Full Setup Guide](docs/SETUP.md)** - Detailed step-by-step instructions
+### **Step 3: Choose Your Setup Method**
+
+- **Windows Users:** Jump to "Quick Start (Windows)" below
+- **Linux Users:** Jump to "Manual Setup (Linux)" below
+
+---
+## 🚀 Quick Start (Windows)
+
+### **1. Create Your Trivia Folder**
+
+Create a folder anywhere on your computer, for example: `C:\Trivia`
+
+### **2. Create questions.csv**
+
+In your trivia folder, create a file named `questions.csv` with this format:
+
+Question,A,B,C,Correct
+"What is 2+2?",Two,Four,Six,B
+"What color is the sky?",Red,Blue,Green,B
+"How many legs does a spider have?",Six,Eight,Ten,B
+"Capital of France?",Berlin,London,Paris,C
+"Largest ocean?",Atlantic,Pacific,Indian,B
+
+**Or** use the included `questions-sample.csv` and rename it to `questions.csv`.
+
+### **3. Run Setup**
+
+In Twitch chat (as broadcaster or mod): `!trivia-setup`
+
+A configuration window will open:
+
+**Basic Setup Tab:**
+1. Paste your folder path (e.g., `C:\Trivia`)
+2. Click "Validate CSV" to check your questions
+3. Adjust game settings:
+   - Questions per Game (default: 10)
+   - Question Delay (default: 5 seconds)
+   - Answer Window (default: 15 seconds)
+
+**Discord Tab (Optional):**
+1. Paste your Discord webhook URL
+2. Choose how many winners/survivors to display
+3. Follow on-screen instructions to enable auto-posting
+
+**Leaderboards Tab:**
+- View current leaderboards
+- Export/import backups
+- Reset all data
+
+### **4. Click "SAVE SETTINGS"**
+
+### **5. You're Ready!**
+
+See "How to Run a Game" below.
+
+---
+## 🐧 Manual Setup (Linux & Advanced Users)
+
+Since the Setup UI uses Windows Forms (not available on Linux), you'll need to manually configure global variables in Streamer.bot. Once configured, **all game features work identically** on Linux and Windows.
+
+### **Step 1: Create Your Data Folder**
+
+For example: `mkdir -p ~/trivia`
+
+Or use any folder path you prefer. Just remember it for Step 2.
+
+### **Step 2: Create questions.csv**
+
+Create a file at `~/trivia/questions.csv` with this format:
+
+Question,A,B,C,Correct
+"What is 2+2?",Two,Four,Six,B
+"What color is the sky?",Red,Blue,Green,B
+"How many legs does a spider have?",Six,Eight,Ten,B
+"Capital of France?",Berlin,London,Paris,C
+"Largest ocean?",Atlantic,Pacific,Indian,B
+
+**Rules:**
+- First row is the header (required)
+- Exactly 5 columns per row
+- Wrap questions in quotes if they contain commas
+- Correct answer must be A, B, or C (case-insensitive)
+- Create at least as many questions as your "Questions per Game" setting
+
+### **Step 3: Configure Global Variables in Streamer.bot**
+
+Open Streamer.bot and navigate to: **Settings → Variables → Global**
+
+Click **"Add"** for each variable below:
+
+#### **Required Configuration Variables:**
+
+| Variable Name | Type | Value | Description |
+|--------------|------|-------|-------------|
+| `TriviaDataFolder` | String | `/home/username/trivia` | **Replace with your actual folder path** |
+| `TriviaQuestionCount` | Number | `10` | How many questions per game (1-30) |
+| `TriviaQuestionDelay` | Number | `5` | Seconds before accepting answers (0-30) |
+| `TriviaQuestionDelayMs` | Number | `5000` | Same as above in milliseconds (delay × 1000) |
+| `TriviaAnswerWindow` | Number | `15` | Seconds players have to answer (5-60) |
+| `TriviaAnswerWindowMs` | Number | `15000` | Same as above in milliseconds (window × 1000) |
+| `TriviaDiscordWinnersDisplay` | String | `Top 10` | Options: `Top 5`, `Top 10`, `Top 25`, `Top 50`, `All` |
+| `TriviaDiscordChampsDisplay` | String | `Top 10` | Options: `Top 5`, `Top 10`, `Top 25`, `Top 50`, `All` |
+
+#### **Optional Discord Integration:**
+
+| Variable Name | Type | Value | Description |
+|--------------|------|-------|-------------|
+| `TriviaDiscordWebhook` | String | `https://discord.com/api/webhooks/...` | Leave empty to skip Discord features |
+
+**Important Notes:**
+- Make sure **"Persisted"** checkbox is checked when creating each variable
+- Use **absolute paths** (e.g., `/home/username/trivia`, not `~/trivia`)
+- Linux paths are **case-sensitive**
+
+### **Step 4: Initialize Leaderboards (Optional)**
+
+The system will create leaderboard variables automatically on first game completion. You don't need to create them manually.
+
+### **Step 5: Verify Configuration**
+
+1. **Check your CSV file exists:** `ls -la ~/trivia/questions.csv`
+
+2. **Test the game:**
+   - `!trivia-init` (as mod/broadcaster)
+   - `!trivia` (as any user - join the game)
+   - `!trivia-start` (as mod/broadcaster)
+
+3. **Watch Streamer.bot logs** (bottom panel) for:
+   - `[Trivia] Loaded 20 questions from CSV`
+   - `[Trivia] Game initialized - join period started`
+
+### **Step 6: Enable Discord Auto-Post (Optional)**
+
+If you configured a Discord webhook:
+
+1. In Streamer.bot, open **Actions** tab
+2. Find **"Trivia 08) End Game"** action
+3. Double-click to edit
+4. Find the **disabled** subaction: `Run Action: Trivia 09) Discord Leaderboards`
+5. **Enable** that subaction (right-click → Enable)
+6. Save the action
+
+After each game, leaderboards will auto-post to Discord.
+
+---
+## 🎮 How to Run a Game
+
+### **Step 1: Initialize (Start Join Period)**
+
+As broadcaster or moderator in chat: `!trivia-init`
+
+Chat will announce:
+
+🎮 TRIVIA SURVIVAL has started! Type !trivia to join!
+Players have 30-60 seconds to join before the game begins.
+
+### **Step 2: Players Join**
+
+Viewers type in chat: `!trivia`
+
+They'll receive confirmation: `✅ @Username has joined! (7 players total)`
+
+### **Step 3: Start the Game**
+
+After 30-60 seconds, lock the player list and begin: `!trivia-start`
+
+Chat announces:
+
+🔒 Player list locked! 12 brave contestants are competing!
+🎯 10 questions | Answer with A, B, or C
+Get ready... Question 1 coming up!
+
+### **Step 4: Game Runs Automatically**
+
+The game will automatically:
+1. Display each question
+2. Wait (Question Delay)
+3. Display answer options with Unicode symbols: `🇦 Two  |  🇧 Four  |  🇨 Six`
+4. Collect answers
+5. Eliminate wrong/missing answers
+6. Announce survivors
+7. Continue to next question
+
+**Players answer by typing:** `A` or `B` or `C` (case-insensitive)
+
+### **Step 5: Game Ends Automatically**
+
+The game ends when:
+- Final question is answered, OR
+- All players are eliminated
+
+End Game runs automatically and displays:
+- Game summary
+- Winners (if any)
+- Top 5 leaderboards in chat
+- Optionally posts to Discord
+
+### **Manual Controls (If Needed)**
+
+| Command | Purpose |
+|---------|---------|
+| `!trivia-ask` | Manually advance to next question (if stuck) |
+| `!trivia-end` | Force end the game early |
 
 ---
 
-## 📚 Documentation
+## 📋 CSV Format Guide
 
-| Guide | Description |
-|-------|-------------|
-| **[📖 Setup Guide](docs/SETUP.md)** | Complete installation and setup instructions |
-| **[⚙️ Configuration Guide](docs/CONFIGURATION.md)** | Customize timers, questions, Discord webhooks, and more |
-| **[💬 Commands Reference](docs/COMMANDS.md)** | All available commands for players and moderators |
+Your `questions.csv` file must follow this format:
+
+### **Format:**
+
+Question,A,B,C,Correct
+
+### **Example:**
+
+Question,A,B,C,Correct
+"What is 2+2?",Two,Four,Six,B
+"What color is the sky?",Red,Blue,Green,B
+"How many legs does a spider have?",Six,Eight,Ten,B
+"Capital of France?",Berlin,London,Paris,C
+"What is the largest ocean?",Atlantic,Pacific,Indian,B
+"How many continents are there?",Five,Seven,Nine,B
+"What is H2O?",Oxygen,Water,Hydrogen,B
+"Who painted the Mona Lisa?",Michelangelo,Da Vinci,Picasso,B
+"Fastest land animal?",Lion,Cheetah,Leopard,B
+"How many planets in our solar system?",Seven,Eight,Nine,B
+
+### **Rules:**
+
+✅ **First row is header** - Must be exactly: `Question,A,B,C,Correct`  
+✅ **5 columns per row** - Question, 3 answer choices, correct letter  
+✅ **Use quotes around questions** - If they contain commas  
+✅ **Correct answer** - Must be A, B, or C (case-insensitive)  
+✅ **Minimum questions** - At least as many as "Questions per Game" setting  
+
+❌ **Don't:**
+- Skip the header row
+- Use more or fewer than 5 columns
+- Use numbers (1, 2, 3) for the correct answer
+- Leave rows blank
+
+### **Validation:**
+
+**Windows users:** Use `!trivia-setup` → Basic Setup → "Validate CSV" button
+
+**Linux users:** Check Streamer.bot logs after running `!trivia-init` for errors
 
 ---
 
-## 🎮 Commands
+## 💬 Commands Reference
 
-### Player Commands
-
-| Command | Description | When Available |
-|---------|-------------|----------------|
-| `!trivia` | Join the game | Pre-game only |
-| `!leave` | Leave the game voluntarily | Pre-game & Live |
-
-### Moderator/Broadcaster Commands
-
-| Command | Description | When Available |
-|---------|-------------|----------------|
-| `!remove @user` | Remove a player from the game | Anytime during game |
-| `!revive @user` | Revive an eliminated player | Live game & After game |
-
-👉 **[Full Commands Guide](docs/COMMANDS.md)**
+| Command | Who Can Use | What It Does |
+|---------|-------------|--------------|
+| `!trivia` | Everyone | Join the game during join period |
+| `!trivia-setup` | Mod/Broadcaster | Open configuration UI (Windows only) |
+| `!trivia-init` | Mod/Broadcaster | Start join period |
+| `!trivia-start` | Mod/Broadcaster | Lock players and begin game |
+| `!trivia-ask` | Mod/Broadcaster | Manually advance to next question |
+| `!trivia-end` | Mod/Broadcaster | Force end the game early |
 
 ---
 
 ## ⚙️ Configuration Options
 
-All settings are controlled via Streamer.bot Global Variables:
+### **Game Settings:**
 
-| Setting | Default | Description |
-|---------|---------|-------------|
-| **Question Count** | 10 | Number of questions per game |
-| **Answer Window** | 15 seconds | Time players have to answer |
-| **Question Delay** | 5 seconds | Delay before showing answer options |
-| **CSV Path** | (required) | Path to your questions file |
+| Setting | Default | Range | Description |
+|---------|---------|-------|-------------|
+| Questions per Game | 10 | 1-30 | Total questions each game |
+| Question Delay | 5 sec | 0-30 | Delay before accepting answers |
+| Answer Window | 15 sec | 5-60 | Time players have to answer |
 
-**Optional Features:**
-- 🪝 Discord webhook integration for leaderboards
-- 📊 Detailed error logging
-- 🎨 Customizable chat messages
+### **Discord Display Options:**
 
-👉 **[Full Configuration Guide](docs/CONFIGURATION.md)**
+| Setting | Default | Options | Description |
+|---------|---------|---------|-------------|
+| Winners Display | Top 10 | Top 5, 10, 25, 50, All | How many winners to show |
+| Sole Survivors Display | Top 10 | Top 5, 10, 25, 50, All | How many survivors to show |
+
+---
+## 🏆 Leaderboards
+
+### **Two Types of Winners:**
+
+**🏅 Winners (All-Time):**
+- Anyone who survives to the final question
+- Shared wins are tracked
+- Example: 3 players survive = all 3 get +1 win
+
+**👑 Sole Survivors:**
+- Players who win ALONE (no ties)
+- Most prestigious achievement
+- Only tracked when exactly 1 player remains
+
+### **Viewing Leaderboards:**
+
+**In Chat:** Shown automatically at end of each game (Top 5)
+
+**In Setup UI (Windows):** Leaderboards tab → Shows Top 10
+
+**In Discord:** Configurable (Top 5/10/25/50/All)
+
+### **Backup & Restore:**
+
+**Windows (via Setup UI):**
+1. Open `!trivia-setup`
+2. Go to Leaderboards tab
+3. Click "Export Backup" → saves timestamped JSON file to your Data Folder
+4. Click "Import Backup" → enter filename from your Data Folder
+
+**Linux (manual):**
+
+Backup: `cp ~/trivia/winners.json ~/trivia/backup-winners-$(date +%Y%m%d).json`
+
+Restore: `cp ~/trivia/backup-winners-20260212.json ~/trivia/winners.json`
+
+**Reset All Leaderboards:**
+- Windows: Setup UI → Leaderboards tab → "Reset All Leaderboards"
+- Linux: Delete `winners.json` and `champions.json` from your Data Folder
 
 ---
 
-## 📝 Creating Questions
+## 🔧 Troubleshooting
 
-Questions are stored in a simple CSV file:
+### **CSV File Not Loading**
 
-```csv
-Question,A,B,C,Correct
-"What is the capital of France?",London,Paris,Berlin,B
-"What is 2+2?",3,4,5,B
-```
+**Windows:**
+- Run `!trivia-setup` → Basic Setup → "Validate CSV"
+- Check error details in the validation box
+- Make sure file is named exactly `questions.csv`
+- Verify 5 columns per row
+- Ensure correct answers are A, B, or C
 
-### CSV Format Rules:
+**Linux:**
+- Check file exists: `ls -la ~/trivia/questions.csv`
+- Check file permissions: `chmod 644 ~/trivia/questions.csv`
+- Verify no Windows line endings: `file ~/trivia/questions.csv`
+- Should say: "ASCII text" or "UTF-8 Unicode text"
+- If it says "CRLF", convert: `dos2unix ~/trivia/questions.csv`
 
-- ✅ Header row: `Question,A,B,C,Correct`
-- ✅ `Correct` must be `A`, `B`, or `C` (uppercase)
-- ✅ Use quotes for questions/answers with commas
-- ✅ Need at least as many questions as your configured question count
+### **Players Can't Join**
 
-👉 **[Example CSV](examples/sample-questions.csv)** - 30 sample questions ready to use!
+✅ Make sure you ran `!trivia-init` first  
+✅ Check game state is "pregame" (not "live" or "ended")  
+✅ Verify `!trivia` command is enabled in Streamer.bot  
+✅ Check Streamer.bot logs for errors  
+
+### **Answers Not Registering**
+
+✅ Players must type exactly: `A`, `B`, or `C` (case-insensitive)  
+✅ Answers only count during the answer window (after options display)  
+✅ Each player can only answer once per question  
+✅ Check "Trivia 06) Collect Answers" has Chat Message trigger enabled  
+
+### **Game Gets Stuck**
+
+**Manually advance:**
+- `!trivia-ask` (skip to next question)
+- `!trivia-end` (force end the game)
+
+**Check Streamer.bot logs** for errors
+
+**Restart fresh:**
+- `!trivia-end`
+- `!trivia-init`
+
+### **Discord Not Posting**
+
+✅ Webhook URL is valid (starts with `https://discord.com/api/webhooks/`)  
+✅ Discord subaction is **enabled** in "Trivia 08) End Game"  
+✅ Variable `TriviaDiscordWebhook` is set correctly  
+✅ Check Streamer.bot logs for Discord API errors  
+
+### **Leaderboards Not Saving (Linux)**
+
+Check folder write permissions: `chmod 755 ~/trivia`
+
+Check if files exist: `ls -la ~/trivia/*.json`
+
+Manually verify global variables exist in Settings → Variables → Global:
+- `TriviaSharedWins`
+- `TriviaChampionWins`
+
+### **Path Issues (Linux)**
+
+❌ **Don't use:** `~/trivia` (shell expansion may not work)  
+✅ **Use:** `/home/username/trivia` (absolute path)  
+✅ **Remember:** Linux paths are case-sensitive  
+
+---
+## 📊 Discord Integration
+
+### **Setup:**
+
+1. **Create Discord Webhook:**
+   - Open your Discord server
+   - Go to Server Settings → Integrations → Webhooks
+   - Click "New Webhook"
+   - Choose the channel for trivia posts
+   - Copy the Webhook URL
+
+2. **Configure in Trivia:**
+   - **Windows:** `!trivia-setup` → Discord tab → Paste URL
+   - **Linux:** Add `TriviaDiscordWebhook` global variable
+
+3. **Enable Auto-Posting:**
+   - Open "Trivia 08) End Game" action
+   - Enable the "Discord Leaderboards" subaction
+   - Save
+
+### **Manual Post:**
+
+You can also post leaderboards on-demand by triggering "Trivia 09) Discord Leaderboards" action manually, or set up a custom command like `!trivia-discord`
+
+### **Example Discord Post:**
+
+📊 TRIVIA LEADERBOARDS
+
+🏅 Winners:
+1. PlayerOne - 5 wins
+2. PlayerTwo - 3 wins
+3. PlayerThree - 2 wins
+
+👑 Sole Survivors:
+1. PlayerOne - 2 times
+2. PlayerFour - 1 time
 
 ---
 
-## 🎯 Game Modes & Ideas
+## 🎯 Tips & Best Practices
 
-### Quick Fire (Fast-paced)
-- 5 questions, 10 second answer window
-- Perfect for short stream segments
+### **For Streamers:**
 
-### Standard Mode (Balanced)
-- 10 questions, 15 second answer window
-- Best for most streams
+✅ **Announce in advance** - Let viewers know trivia is coming  
+✅ **Allow 30-60 seconds** for joins - Don't rush `!trivia-start`  
+✅ **Have 15-20 questions minimum** - More variety per game  
+✅ **Mix difficulty levels** - Keep it fun for everyone  
+✅ **Backup leaderboards regularly** - Export before major changes  
+✅ **Test with mods first** - Run through a full game before going live  
 
-### Marathon Mode
-- 20 questions, 20 second answer window
-- Epic challenge for dedicated viewers
+### **Question Writing Tips:**
 
-### Themed Games
-Create different CSV files for different themes:
-- 🎬 Movies & TV
-- 🎮 Gaming trivia
-- 🎵 Music knowledge
-- 🌍 Geography
-- 📚 Literature
+✅ **Keep questions concise** - Short and clear  
+✅ **Avoid trick questions** - Make it fair and fun  
+✅ **Mix topics** - Pop culture, general knowledge, stream-specific  
+✅ **Balance difficulty** - Easy opener, harder mid-game, medium finale  
+✅ **Test for ambiguity** - Make sure one answer is clearly correct  
 
----
+### **Timing Recommendations:**
 
-## 🔧 Technical Details
-
-### What's Included
-
-**Essential Actions (13 total):**
-- Initialize
-- Join
-- Start Game
-- Ask Question
-- Open Answers
-- Collect Answers
-- End Question
-- Intermission
-- Update Player Counts
-- End Game
-- Leave
-- Mod Remove
-- Revive
-
-**Features:**
-- Dictionary-based player tracking
-- Game state management (idle/pregame/starting/live/ended)
-- CSV validation with detailed error logging
-- User variable persistence for leaderboards
-- Discord webhook integration
-- Answer locking (no changes once submitted)
-
-### Requirements
-
-- **Streamer.bot v0.2.0+** (for C# Execute Code support)
-- **Twitch connection** (for chat interaction)
-- **CSV file** with valid questions
+- **Fast-paced:** 5 sec delay, 10 sec window, 5 questions
+- **Balanced:** 5 sec delay, 15 sec window, 10 questions (default)
+- **Casual:** 3 sec delay, 20 sec window, 8 questions
 
 ---
 
-## 🐛 Troubleshooting
+## 🔄 Updating Questions
 
-### Common Issues
+You can update questions anytime:
 
-**"CSV file not found" error**
-- Check your `TriviaCSVPath` variable has the full file path
-- Use `C:\path\to\file.csv` or `C:/path/to/file.csv`
+1. Edit your `questions.csv` file (add/remove/change questions)
+2. Save the file
+3. Run `!trivia-init` to load the new questions
 
-**Players can't join**
-- Make sure game is initialized (run Initialize action)
-- Check that `!trivia` command trigger is set up
-
-**Answers not being collected**
-- Verify Chat Message event is connected to "Collect Answers" action
-- Check Streamer.bot logs for errors
-
-👉 **[Full Troubleshooting Guide](docs/SETUP.md#troubleshooting)**
+**No need to restart Streamer.bot** - questions load fresh each game.
 
 ---
 
-## 🤝 Contributing
+## 📝 Version History
 
-Contributions are welcome! Here's how you can help:
-
-- 🐛 **Report bugs** - Open an issue with details
-- 💡 **Suggest features** - Share your ideas
-- 📝 **Improve docs** - Submit corrections or clarifications
-- 🎨 **Share question banks** - Create themed CSV files
-
-### Reporting Issues
-
-When reporting a bug, please include:
-1. What you were trying to do
-2. What happened vs. what you expected
-3. Streamer.bot version
-4. Relevant error messages from logs
+### **v1.0 (2026-02-12)**
+- Initial release
+- 10 questions per game (configurable 1-30)
+- Elimination-style gameplay
+- Dual leaderboards (Winners + Sole Survivors)
+- Discord integration
+- Windows GUI setup
+- Linux manual setup support
+- Backup/restore system
+- Unicode answer symbols (no emoji conflicts)
 
 ---
 
-## 📄 License
+## 📜 License & Credits
 
-This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
+**Created for Streamer.bot**  
+**Version:** 1.0  
+**Release Date:** February 12, 2026  
+**Compatible with:** Streamer.bot v0.2.0+ and v1.0.4+
 
-**TL;DR:** Free to use, modify, and distribute. Just keep the license notice.
+**Platform Support:**  
+✅ Windows (Full GUI)  
+✅ Linux (Manual Configuration)
 
----
-
-## 💡 Credits & Thanks
-
-**Created by:** [@1moreastronaut](https://github.com/1moreastronaut)
-
-**Powered by:** [Streamer.bot](https://streamer.bot/) by Nate (nate1280)
-
-### Using This on Your Stream?
-
-I'd love to hear about it! 
-
-- 📺 Twitch: [twitch.tv/1moreastronaut](https://twitch.tv/1moreastronaut)
-- 🐦 Tag me or share your experiences!
-- ⭐ Star this repo if you find it useful!
+**This extension is provided as-is with no warranty.**  
+Feel free to modify for personal use.
 
 ---
 
-## ⭐ Support This Project
+## 🆘 Support
 
-If you find this useful:
+**Check Streamer.bot Logs:**
+- Bottom panel in Streamer.bot
+- Look for `[Trivia]` prefixed messages
+- Errors will show specific issues
 
-- ⭐ **Star this repository** on GitHub
-- 📢 **Share it** with other streamers
-- 🐛 **Report bugs** to help improve it
-- 💬 **Provide feedback** on what works and what doesn't
+**Common Issues:**
+- See "Troubleshooting" section above
+- Verify all configuration variables are set
+- Check CSV file format and path
+- Ensure commands are enabled
 
----
-
-## 🔮 Roadmap & Future Ideas
-
-Potential features being considered:
-
-- 🎲 Question randomization option
-- 📊 More detailed statistics tracking
-- 🎨 Multiple question formats (True/False, Fill-in-blank)
-- ⏰ Configurable pre-game join timer
-- 🏅 Achievement system
-- 📈 Per-game analytics
-
-Have an idea? [Open an issue](https://github.com/1moreastronaut/trivia-survival-game/issues) and let's discuss!
+**For bugs or feature requests:**
+- Include Streamer.bot version
+- Include platform (Windows/Linux)
+- Include relevant log messages
+- Describe steps to reproduce
 
 ---
 
-## 📞 Support & Community
+## 🎉 Enjoy Your Trivia Games!
 
-- 💬 **Questions?** Open a [GitHub Issue](https://github.com/1moreastronaut/trivia-survival-game/issues)
-- 📖 **Docs:** Check the [/docs](docs/) folder
-- 🎮 **Live help:** Stop by [my stream](https://twitch.tv/1moreastronaut)
+Have fun engaging your community with Trivia Survival!
 
----
-
-**Ready to get started?** → [Setup Guide](docs/SETUP.md)
-
-**Need to customize?** → [Configuration Guide](docs/CONFIGURATION.md)
-
-**Questions about commands?** → [Commands Reference](docs/COMMANDS.md)
-
----
-
-Made with ❤️ for the Twitch community
+**Good luck to all contestants!** 🏆
