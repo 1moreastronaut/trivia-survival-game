@@ -190,6 +190,7 @@ Ideas and features being considered for future releases:
 
 | Version | Release Date | Highlights |
 |---------|--------------|------------|
+| 1.0.1 | 2026-02-12 | Performance optimization - Collect Answers action lifecycle management |
 | 1.0.0 | 2026-02-12 | Initial release - Full game system with dual leaderboards, Discord integration, cross-platform support |
 
 ---
