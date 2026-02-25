@@ -1,4 +1,4 @@
-# Trivia Survival - v1.0.1
+# Trivia Survival - v1.0.2
 
 A fully-featured multiple-choice trivia game for Twitch streamers using Streamer.bot.
 
@@ -520,6 +520,9 @@ You can update questions anytime:
 ---
 
 ## 📝 Version History
+
+### **v1.0.1 (2026-02-24)**
+- Bug fix to correct Setup UI not launching
 
 ### **v1.0.1 (2026-02-12)**
 - Performance optimization: Collect Answers action only runs during answer windows
