@@ -32,7 +32,7 @@ Players compete by answering A/B/C questions. Wrong answers eliminate players. L
 ## 📦 Installation (Windows & Linux)
 
 ### **Step 1: Download Files**
-- `Trivia-Survival-v1.0.1.sb` (main export file)
+- `Trivia-Survival-v1.0.2.sb` (main export file)
 - `sanple-questions.csv` (example questions)
 - This README
 
@@ -42,7 +42,7 @@ Players compete by answering A/B/C questions. Wrong answers eliminate players. L
 
 1. Open Streamer.bot
 2. Click the **"Import"** button at the top of the window
-3. **Drag and drop** the `Trivia-Survival-v1.0.1.sb` file into the import window
+3. **Drag and drop** the `Trivia-Survival-v1.0.2.sb` file into the import window
 4. Confirm the import
 
 This will import:
