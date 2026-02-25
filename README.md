@@ -33,10 +33,10 @@ Players compete by answering A/B/C questions. Wrong answers eliminate players. L
 
 ### **Step 1: Download Files**
 - `Trivia-Survival-v1.0.1.sb` (main export file)
-- `questions-sample.csv` (example questions)
+- `sanple-questions.csv` (example questions)
 - This README
 
-**⚠️ Note about sample questions:** The included `questions-sample.csv` is designed for **testing purposes only**. All 30 questions have "B" as the correct answer to make testing easier. For actual gameplay, create your own questions with randomized correct answers (A, B, or C) to prevent players from guessing patterns.
+**⚠️ Note about sample questions:** The included `sample-questions.csv` is designed for **testing purposes only**. All 30 questions have "B" as the correct answer to make testing easier. For actual gameplay, create your own questions with randomized correct answers (A, B, or C) to prevent players from guessing patterns.
 
 ### **Step 2: Import into Streamer.bot**
 
@@ -73,7 +73,7 @@ Question,A,B,C,Correct
 "Capital of France?",Berlin,London,Paris,C
 "Largest ocean?",Atlantic,Pacific,Indian,B
 
-**Or** use the included `questions-sample.csv` and rename it to `questions.csv`.
+**Or** use the included `sample-questions.csv` and rename it to `questions.csv`.
 
 ### **3. Run Setup**
 
